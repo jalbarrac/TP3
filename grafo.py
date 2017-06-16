@@ -5,7 +5,8 @@ class Grafo:
 	def __init__(self, dir):
 			self.dic = {}
 			self.dir = dir
-			self.cant = 0
+			self.cant_vert = 0
+			self.cant_ari = 0
 
 # Devuelve True al quitar un vertice o False si el
 # vertice no pertenece al grafo.
@@ -19,7 +20,7 @@ class Grafo:
 			for i in self.dic:
 				if v in self.dic[i]:
 					self.dic[i].remove(v)
-			self.cant -= 1
+			self.cant_vert -= 1
 			return True
 
 # Devuelve True al agregar un vertice al grafo,
@@ -29,7 +30,7 @@ class Grafo:
 				return False
 
 			self.dic[v] = []
-			self.cant += 1
+			self.cant_vert += 1
 			return True
 
 # Devuelve True si un vertice pertenece al grafo,
@@ -37,9 +38,13 @@ class Grafo:
 	def	existe_vertice(self, v):
 			return v in self.dic
 
-# Devuelve la cantidad de elementos en el grafo
-	def	cantidad(self):
-			return self.cant
+# Devuelve la cantidad de vertices en el grafo
+	def	cant_vertices(self):
+			return self.cant_vert
+
+# Devuelve la cantidad de aristas en el grafo
+	def	cant_aristas(self):
+			return self.cant_ari
 
 # devuelve la lista de vertices adyacentes al vertice
 # pasado por parametro o None si el vertice no existe
@@ -83,6 +88,7 @@ class Grafo:
 			if not self.dir:
 				self.dic[v2].append(v1)
 
+			self.cant_ari += 1
 			return True
 
 # Devuelve True al quitar una arista entre dos vertices.
@@ -100,6 +106,7 @@ class Grafo:
 			if not self.dir:
 				self.dic[v2].remove(v1)
 
+			self.cant_ari -= 1
 			return True
 
 #Devuelve una lista con los Vertices del grafo.

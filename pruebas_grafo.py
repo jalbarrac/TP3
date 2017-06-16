@@ -21,7 +21,7 @@ from grafo import Grafo
 print("Crear grafo no dirigido")
 g = Grafo(False)
 
-print("Cantidad de elementos en grafo vacio es 0... OK")			if g.cantidad() == 0				else print("Cantidad de elementos en grafo vacio es 0... Error")
+print("Cantidad de elementos en grafo vacio es 0... OK")			if g.cant_vertices() == 0				else print("Cantidad de elementos en grafo vacio es 0... Error")
 print("Agregar vertice '1' es True... OK")							if g.agregar_vertice('1')			else print("Agregar vertice '1' es True... Error")
 print("Agregar de nuevo vertice '1' es False... OK")				if not g.agregar_vertice('1')		else print("Agregar de nuevo vertice '1' es False... Error")
 print("Cantidad de elementos es 1... OK")							if g.cantidad() == 1				else print("Cantidad de elementos es 1... Error")
@@ -58,7 +58,7 @@ print("Crear grafo dirigido")
 h = Grafo(True)
 
 print("Agregar de vertice '1' es True... OK")						if h.agregar_vertice('1')			else print("Agregar vertice '1' es True... Error")
-print("Cantidad de elementos es 1... OK")							if h.cantidad() == 1				else print("Cantidad de elementos es 1... Error")
+print("Cantidad de elementos es 1... OK")							if h.cant_vertices() == 1				else print("Cantidad de elementos es 1... Error")
 print("Agregar vertice '2' es True... OK")							if h.agregar_vertice('2')			else print("Agregar vertice '2' es True... Error")
 print("Agregar de nuevo vertice '2' es False... OK")				if not h.agregar_vertice('2')		else print("Agregar de nuevo vertice '2' es False... Error")
 print("Agregar arista entre 1 y 2 es True... OK")					if h.agregar_arista('1', '2')		else print("Agregar arista entre 1 y 2 es True... Error")

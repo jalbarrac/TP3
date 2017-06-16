@@ -1,4 +1,5 @@
 #implementacion de un grafo
+#15/6 agregado el miembro cantidad de aristas y una primitiva que devuelve esta cantidad
 
 # Definicion del TDA Grafo
 class Grafo:

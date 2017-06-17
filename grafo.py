@@ -63,7 +63,7 @@ class Grafo:
 #si v2 es adyacente de v1
 	def	son_adyacentes(self, v1, v2):
 			if not self.existe_vertice(v1) and not self.existe_vertice(v2):
-				return false
+				return False
 
 			uno_con_dos = v2 in self.adyacentes(v1)
 
@@ -114,4 +114,6 @@ class Grafo:
 	def vertices(self):
 		return list(self.dic.keys())
 
-#Proximamente: iterador
+#fuente : lista de correos, iter es un metodo que retorna un iterador
+	def	__iter__(self):
+			return iter(self.dic)

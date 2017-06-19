@@ -123,7 +123,7 @@ Post:
 """
 def recomendar(id_usuario, cantidad_recomendados ):
     usuarios,len_usuarios = random_walks( g, id_usuario,True )
-    recomendados_mayores = ordenar_y_devolver_mayores(g, id_usuario, cantidad_recomendados )
+    recomendados_mayores = ordenar_y_devolver_mayores(usuarios, len_usuarios, cantidad_recomendados )
     print(recomendados_mayores) #el print este es de prueba
 
 ################################ Main ##################################

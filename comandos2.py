@@ -46,7 +46,7 @@ RAND_STEP = 1
 
 
 """
-Hace n caminos del largo indicado en la lista.
+Realiza caminos aleatorios 
 
 Pre:Grafo fue creado y sus vertices son numeros
 

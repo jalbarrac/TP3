@@ -1,6 +1,8 @@
 from grafo import Grafo
 import random 
 import heapq
+from collections import deque
+from operator import itemgetter
 
 """Funcion para cargar grafo desde un archivo.
 
@@ -36,7 +38,7 @@ def cargar_grafo(g):
     return True
 
 ####################################
-#CONSTANTES (otra manera de definirlos?)//calibrar mejor los valores
+#CONSTANTES
 ######################################
 MAX_CAMINOS = 335
 RAND_MAX_RANGE = 15 #max long del camino
@@ -50,12 +52,9 @@ Realiza caminos aleatorios
 
 Pre:Grafo fue creado y sus vertices son numeros
 
-Post:Devuelve una lista con la cantidad de apariciones
-de cada vertice en todos los caminos que empiezan desde
-el vertice que se recibe como parametro. Por defecto
-se ignora el vertice recibido por parametro.También
-se pueden ignorar sus adyacentes si se setea el tercer
-parámetro en True
+Post:Devuelve un diccionario con los vertices y su cantidad de apariciones
+en todos los caminos que empiezan desde
+el vertice que se recibe como parametro.
 """
 def random_walks(g,vertice,descartar_ady):
     caminos=[]
@@ -85,50 +84,126 @@ def random_walks(g,vertice,descartar_ady):
     return aparecidos,tam
 
 """
-Recibe un diccionario lo ordena por valor de mayor a menor utilizando
-un heap y retorna las n-tuplas mayores.
-Pre: diccionario fue creado, sus valores son numericos y sólo existe
-un tipo de par clave-valor
-Post: se retornó lista de tuplas
 """
-def ordenar_y_devolver_mayores( diccionario, tam_dic ,n ):
-    heap = []
-    heap_aux =[]
-    #bueno, basicamente es hacer push y después pop (lo vi en la lista de correos),
-    #no encontré otra forma de atacar el problema con el heap
-    for u in diccionario:
-        heapq.heappush(heap_aux,(diccionario[u],u))
-    tam_heap = tam_dic
-    while tam_heap > 0 :
-        valor,clave = heapq.heappop(heap_aux)
-        heapq.heappush(heap,(valor,clave))
-        tam_heap-=1
-    del(heap_aux)
-    #no sé bien cual es la complejidad de heapq.nlargest
-    mayores = heapq.nlargest(int(n),heap)
-    return mayores
+def imprimir_clave_lista_tuplas( lista_tuplas ):
+    for item in lista_tuplas:
+        print(str(item[0]))
+        #print(item)
 
 """
 Pre:
 Post:
 """
-def similares( id_usuario, cantidad_similares ):
-    usuarios,len_usuarios = random_walks( g, id_usuario,False )
-    similares_mayores = ordenar_y_devolver_mayores(usuarios,len_usuarios,cantidad_similares)
-    print(similares_mayores) #el print este es de prueba
+def similares( id_usuario, cant_similares ):
+    usuarios = random_walks( g, id_usuario,False )
+    mas_similares= heapq.nlargest(int(cant_similares),usuarios.items(),key=itemgetter(1))
+    imprimir_clave_lista_tuplas(mas_similares)
 
 """
 Pre:
 Post:
 """
-def recomendar(id_usuario, cantidad_recomendados ):
-    usuarios,len_usuarios = random_walks( g, id_usuario,True )
-    recomendados_mayores = ordenar_y_devolver_mayores(usuarios, len_usuarios, cantidad_recomendados )
-    print(recomendados_mayores) #el print este es de prueba
+def recomendar(id_usuario, cant_recomendados ):
+    usuarios = random_walks( g, id_usuario,True )
+    mas_recomendados = heapq.nlargest(int(cant_recomendados),usuarios.items(),key=itemgetter(1))
+    imprimir_clave_lista_tuplas(mas_recomendados)
 
+
+############################# 
+
+"""
+Pre:
+Post:
+"""
+
+def bfs_visitar(origen,visitados,orden,padre):
+    cola = deque() #creo cola vacia
+    cola.append(origen)
+    visitados[origen]=True
+    len_cola = 1
+    while len_cola>0:#len_cola > 0:
+        v = cola.popleft()
+        len_cola-=1
+        for w in g.dic[v]:
+            if w not in visitados:
+                visitados[w] = True
+                orden[w] = orden[v] + 1
+                if padre is not None:
+                    padre[w]=v
+                cola.append(w)
+                len_cola+=1
+
+"""
+Pre:
+Post:
+"""
+
+def distancias(id_usuario): 
+    visitados={}
+    orden ={}
+    orden[id_usuario]=0
+    bfs_visitar(id_usuario,visitados,orden,None)
+    heap =[]
+    dist={}
+    for v in orden:
+        if orden[v] not in dist:
+            dist[orden[v]]=0
+        dist[orden[v]]+=1
+    for u in dist: 
+        heapq.heappush(heap,(u,dist[u])) 
+    long = len(dist)
+    heapq.heappop(heap) #saco el primer elemento para que no salga el mismo
+    long-=1
+    while long>0:
+        clave,val=heapq.heappop(heap)
+        print(clave,val)
+        long-=1
+
+#############################
+
+"""
+Pre:
+Post:
+"""
+def imprimir_camino(s,v,padre):
+    pila = []
+    u = v
+    while u!=s :
+        if u not in padre:
+            break
+        pila.append(u)
+        u = padre[u]
+    if u!=s:
+        print("No existe un camino de"+str(s)+" a "+ str(v) )
+        pila.clear()
+        return
+    print(s,end="")
+    len_pila = len(pila)
+    while len_pila>0:
+        u = pila.pop()
+        print("->"+ u,end="")
+        len_pila-=1
+
+"""
+Pre:
+Post:
+"""
+def camino( id1,id2 ):
+    visitados ={}
+    padre={}
+    orden={}
+    orden[id1]=0
+    bfs_visitar(id1,visitados,orden,padre)
+    imprimir_camino(id1,id2,padre)
+    
 ################################ Main ##################################
 
 g = Grafo(False)
+print("cargando grafo")
 cargar_grafo(g)
-similares("1","13")
+print("listo")
+#similares("1","5")
+#recomendar("5","4")
+distancias("9") 
+#camino( "11","1991")
 

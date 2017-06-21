@@ -4,7 +4,7 @@ import itertools
 import random
 from grafo import Grafo
 
-MAX_ITERACIONES = 100
+MAX_ITERACIONES = 2
 
 def max_freq(grafo, label, v):
 	freq = {}
@@ -14,13 +14,13 @@ def max_freq(grafo, label, v):
 		else:
 			freq[label[u]] += 1
 
-	max = 0
+	max = -1
 	maxlabel = 0
 	for clave, valor in freq.items():
 		if valor > max:
 			max = valor
 			maxlabel = clave
-	
+
 	return maxlabel
 
 
@@ -31,21 +31,33 @@ def label_propagation(grafo):
 
 	for i, v in enumerate(sorted(vertices)):
 		label[v] = i + 1
-
-	#for v in sorted(label.keys()):
-	#	print(v, label[v])
-
 	
-	for i in (0, MAX_ITERACIONES):
+	for i in range(0, MAX_ITERACIONES):
 
 		random.shuffle(vertices)
 		for v in vertices:
 			label[v] = max_freq(grafo, label, v)
+	
+	miembros_por_comunidad = {}
+	freq = {}
+	for v in vertices:
+		if label[v] not in freq:
+			freq[label[v]] = 0
+		else:
+			freq[label[v]] += 1
 
-	for l in label:
-		print(l)
+		if label[v] not in miembros_por_comunidad:
+			miembros_por_comunidad[label[v]] = []
+		miembros_por_comunidad[label[v]].append(v)
 
-
+	for k in sorted(miembros_por_comunidad.keys()):
+		if (len(miembros_por_comunidad[k]) > 4 and len(miembros_por_comunidad[k]) < 2000):
+			print("\nComunidad ", k)
+			for v in sorted(miembros_por_comunidad[k]):
+				print(v)
+				#print(v, " ", end = '')
+			
+	
 
 #estadisticas--------------------------------------------------------
 
@@ -105,7 +117,6 @@ while(True):
 		elif(args[0] == "estadisticas"):
 			mostrar_estadisticas(g)
 		elif(args[0] == "comunidades"):
-			#comunidades(args, g)
 			label_propagation(g)
 		elif(args[0] == "distancias"):
 			distancias(args, g)

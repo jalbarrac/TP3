@@ -1,5 +1,4 @@
 #implementacion de un grafo
-#15/6 agregado el miembro cantidad de aristas y una primitiva que devuelve esta cantidad
 
 # Definicion del TDA Grafo
 class Grafo:
@@ -20,7 +19,7 @@ class Grafo:
 
 			for i in self.dic:
 				if v in self.dic[i]:
-					self.dic[i].remove(v)
+					del self.dic[i][v]
 			self.cant_vert -= 1
 			return True
 
@@ -30,7 +29,7 @@ class Grafo:
 			if self.existe_vertice(v):
 				return False
 
-			self.dic[v] = []
+			self.dic[v] = {}
 			self.cant_vert += 1
 			return True
 
@@ -63,7 +62,7 @@ class Grafo:
 #si v2 es adyacente de v1
 	def	son_adyacentes(self, v1, v2):
 			if not self.existe_vertice(v1) and not self.existe_vertice(v2):
-				return False
+				return false
 
 			uno_con_dos = v2 in self.adyacentes(v1)
 
@@ -84,10 +83,10 @@ class Grafo:
 			if self.son_adyacentes(v1,v2):
 				return False
 
-			self.dic[v1].append(v2)
+			self.dic[v1][v2] = None
 
 			if not self.dir:
-				self.dic[v2].append(v1)
+				self.dic[v2][v1] = None
 
 			self.cant_ari += 1
 			return True
@@ -102,10 +101,10 @@ class Grafo:
 			if not self.son_adyacentes(v1,v2):
 				return False
 
-			self.dic[v1].remove(v2)
+			del self.dic[v1][v2]
 
 			if not self.dir:
-				self.dic[v2].remove(v1)
+				del self.dic[v2][v1]
 
 			self.cant_ari -= 1
 			return True
@@ -114,6 +113,4 @@ class Grafo:
 	def vertices(self):
 		return list(self.dic.keys())
 
-#fuente : lista de correos, iter es un metodo que retorna un iterador
-	def	__iter__(self):
-			return iter(self.dic)
+#Proximamente: iterador

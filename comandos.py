@@ -7,178 +7,267 @@ import heapq
 from collections import deque
 from operator import itemgetter
 
+"""
+Hace una lista de caminos del largo pasado por parámetro, cuyos valores en cada índice son
+una cantidad aleatoria de pasos comprendida en el rango también pasado por parámetro.
 
-####################################
-#CONSTANTES
-######################################
-MAX_CAMINOS = 335
-RAND_MAX_RANGE = 15 #max long del camino
-RAND_MIN_RANGE = 1
-RAND_STEP = 1
-############################
-
+Post:se retornó lista de caminos
 
 """
-Realiza caminos aleatorios 
-Pre:Grafo fue creado y sus vertices son numeros
-Post:Devuelve un diccionario con los vertices y su cantidad de apariciones
-en todos los caminos que empiezan desde
-el vertice que se recibe como parametro.
-"""
-def random_walks(g,vertice,descartar_ady):
+
+def random_walk_lista_crear( cant_caminos,max_pasos,min_pasos ):
     caminos=[]
-    cant_caminos = MAX_CAMINOS
-    while( cant_caminos > 0 ):
-        caminos.append( random.randrange( RAND_MIN_RANGE,RAND_MAX_RANGE,RAND_STEP ) )
-        cant_caminos-=1
-    #print(caminos)
-    cant_caminos = MAX_CAMINOS
+    len_caminos = int(cant_caminos)
+
+    while( len_caminos > 0 ):
+        caminos.append( random.randint( int(min_pasos),int(max_pasos) ) )
+        len_caminos-=1
+
+    return caminos
+
+"""
+Cuenta las apariciones de cada vertice en un camino.
+
+Pre: instancia de Grafo creada, diccionario aparecidos creado.
+
+Post: diccionario aparecidos actualizado.
+"""
+
+def random_walk_visitar( grafo,origen,len_camino,aparecidos,descartar_ady ):
+    u = origen
+    
+    for pasos in range(0, len_camino):
+        #elijo vertice aleatorio   
+        v = random.choice( list(grafo.dic[u]) )
+        #no cuento las apariciones del origen
+        #o de los adyacentes al origen en el caso de que descartar_ady = True    
+        if v not in aparecidos and v!=origen:
+            if descartar_ady == False: 
+                aparecidos[v]=0
+            elif grafo.son_adyacentes( origen,v )==False:
+                    aparecidos[v]=0
+        if v in aparecidos:
+            aparecidos[v]+=1
+        u=v
+
+
+"""
+Realiza caminos aleatorios en un grafo para el número de vértices pasado por parámetro.
+
+Pre: instancia de Grafo creada, lista de caminos creada 
+
+Post: se retornó diccionario con la cantidad de apariciones de los vértices encontrados.
+"""
+
+def random_walk_global(grafo,cant_vertices,cant_caminos,lista_caminos):
+    len_caminos = int(cant_caminos)
     aparecidos={}
-    for i in range(0,cant_caminos):
-        u = vertice
-        largo_camino=caminos[i]
-        #print(largo_camino)
-        for pasos in range(0, largo_camino):
-            u = random.choice(g.dic[u]) #elijo vertice aleatorio
-            if u not in aparecidos and u!=vertice: #no tengo en cuenta al vertice del parametro
-                if descartar_ady == False: #se descartan adyacentes cuando busco recomendados
-                    aparecidos[u]=0
-                elif u not in g.dic[vertice]:
-                    aparecidos[u]=0
-            if u in aparecidos:
-                aparecidos[u]+=1
-    #print(aparecidos)
-    tam = len(aparecidos)
-    #print(tam )
-    return aparecidos,tam
+    contador = 0
+    
+    for v in grafo.dic:
+        for i in range(0,len_caminos):
+            len_camino=lista_caminos[i]
+            random_walk_visitar( grafo,v,lista_caminos[i],aparecidos,False )
+        contador+=1
+        if(contador == cant_vertices ):
+            break
+    
+    return aparecidos
+
 
 """
+Imprime el primer item de cada tupla en una lista
+
+Pre: lista_tuplas fue creada.
+
 """
-def imprimir_clave_lista_tuplas( lista_tuplas ):
+def imprimir_clave_lista_tuplas( lista_tuplas,imprimir_coma ):
+
     for item in lista_tuplas:
-        print(str(item[0]))
-        #print(item)
+        print(str(item[0]),end="")
+        if imprimir_coma == True:
+            print(",",end="")
+        print("\t",end="")
+    print("\n")
+        
+
+MAX_CAM_SIM_REC =3543
+MAX_PASOS_SIM_REC =15
+MIN_PASOS_SIM_REC =1
 
 """
-Pre:
-Post:
-"""
-def similares( id_usuario, cant_similares ):
-    usuarios = random_walks( g, id_usuario,False )
-    mas_similares= heapq.nlargest(int(cant_similares),usuarios.items(),key=itemgetter(1))
-    imprimir_clave_lista_tuplas(mas_similares)
+Imprime una cantidad de usuarios similares al usuario pasado por parámetro.
+
+Pre: instancia de Grafo creada, 
 
 """
-Pre:
-Post:
+def similares( grafo, id_usuario, cant_similares ):
+    caminos = MAX_CAM_SIM_REC
+    max_pasos = MAX_PASOS_SIM_REC
+    min_pasos = MIN_PASOS_SIM_REC
+    lista_caminos = random_walk_lista_crear(caminos,max_pasos,min_pasos )
+    aparecidos={}
+    
+    for i in range(0,caminos):
+        random_walk_visitar(grafo,id_usuario,lista_caminos[i],aparecidos,False)
+        
+    mas_similares= heapq.nlargest(int(cant_similares),aparecidos.items(),key=itemgetter(1))
+    imprimir_clave_lista_tuplas(mas_similares,False)
+
+
 """
-def recomendar(id_usuario, cant_recomendados ):
-    usuarios = random_walks( g, id_usuario,True )
-    mas_recomendados = heapq.nlargest(int(cant_recomendados),usuarios.items(),key=itemgetter(1))
-    imprimir_clave_lista_tuplas(mas_recomendados)
+Imprime una cantidad de usuarios recomendados al usuario pasado por parámetro
 
-
-############################# 
+Pre: instancia de Grafo creada, 
 
 """
-Pre:
-Post:
+def recomendar(grafo,id_usuario, cant_recomendados ):
+    caminos = MAX_CAM_SIM_REC
+    max_pasos= MAX_PASOS_SIM_REC
+    min_pasos = MIN_PASOS_SIM_REC
+    lista_caminos = random_walk_lista_crear(caminos,max_pasos,min_pasos )
+    aparecidos={}
+
+    for i in range(0,caminos):
+        random_walk_visitar( grafo,id_usuario,lista_caminos[i],aparecidos,True )
+        
+    mas_recomendados = heapq.nlargest(int(cant_recomendados),aparecidos.items(),key=itemgetter(1))
+    imprimir_clave_lista_tuplas(mas_recomendados,True)
+
+
+"""
+Realiza recorrido BFS desde un vertice pasado por parámetro.
+Calcula la distancia mínima entre el vértice de origen y los otros vértices
+que se encuentran en un grafo no pesado.
+
+Pre: instancia de Grafo creada
+Post: se retornó diccionario con la distancia de cada vértice en el recorrido.
 """
 
-def bfs_visitar(origen,visitados,orden,padre):
-    cola = deque() #creo cola vacia
+def bfs_visitar(grafo,origen ):
+    visitados={}
+    orden ={}
+    orden[origen]=0
+    cola = deque() 
     cola.append(origen)
     visitados[origen]=True
     len_cola = 1
-    while len_cola > 0:#len_cola > 0:
+
+    while len_cola>0:
         v = cola.popleft()
         len_cola-=1
-        for w in g.dic[v]:
+
+        for w in grafo.dic[v]:
             if w not in visitados:
                 visitados[w] = True
                 orden[w] = orden[v] + 1
-                if padre is not None:
-                    padre[w] = v
                 cola.append(w)
                 len_cola+=1
+    return orden
+
 
 """
-Pre:
-Post:
-"""
+Reconstruye un camino mínimo desde un vertice de origen hasta otro en un
+grafo no pesado
 
-def distancias(id_usuario): 
-    visitados={}
-    orden ={}
-    orden[id_usuario]=0
-    bfs_visitar(id_usuario,visitados,orden,None)
-    heap =[]
-    dist={}
-    for v in orden:
-        if orden[v] not in dist:
-            dist[orden[v]]=0
-        dist[orden[v]]+=1
-    for u in dist: 
-        heapq.heappush(heap,(u,dist[u])) 
-    long = len(dist)
-    heapq.heappop(heap) #saco el primer elemento para que no salga el mismo
-    long-=1
-    while long>0:
-        clave,val=heapq.heappop(heap)
-        print(clave,val)
-        long-=1
+Pre: instancia de Grafo creada
 
-#############################
+Post: se  imprimió por pantalla el camino entre los vertices si éste existe.
+En caso contrario se retornó False
+"""
+def reconstruir_camino(grafo,origen,v,dist_min,dist_actual):
 
-"""
-Pre:
-Post:
-"""
-def imprimir_camino(s, v, padre):
-	pila = []
-	u = v
-	while u != s :
-		if u not in padre:
-			break
-		pila.append(u)
-		u = padre[u]
-	if u != s:
-		print("No existe un camino de"+str(s)+" a "+ str(v) )
-		pila.clear()
-		return
-	print(s, end="")
-	len_pila = len(pila)
-	while len_pila > 0:
-		u = pila.pop()
-		print(" ->", u, end="")
-		len_pila-=1
-	print("\n")
+    if dist_actual>dist_min:
+        return False
+    
+    for adyacente in grafo.dic[v]:
+        if adyacente == origen:
+            print(origen,end="")
+            if dist_min == 1:
+                print("->"+v+"\n",)
+            return True
+        if reconstruir_camino(grafo,origen,adyacente,dist_min,dist_actual+1) is True:
+            print("->"+ adyacente,end="")
+            if dist_actual == 1:
+                print("->"+v+"\n",)
+            return True
+        
+    return False
+
 
 """
-Pre:
-Post:
+Calcula el camino minimo entre dos usuarios y lo imprime en pantalla
+
+Pre: instancia de Grafo creada,
+
 """
-def camino(args, g):
+
+def camino( args,g ):
 	if len(args) != 3:
 		print("El comando \"camino\" requiere dos nodos como argumentos.")
 		return
-
 	if not g.existe_vertice(int(args[1])):
 		print("Vertice ", int(args[1]), " inexistente.")
 		return
 	if not g.existe_vertice(int(args[2])):
 		print("Vertice ", int(args[2]), " inexistente.")
 		return
+	orden = bfs_visitar(g,id1)
+	if reconstruir_camino(g,id1,id2,orden[id2],1) is False:
+        	print("No existe camino de "+id1+" a "+id2)
 
-	visitados = {}
-	padre = {}
-	orden = {}
-	id1 = int(args[1])
-	id2 = int(args[2])
-	orden[id1] = 0
-	bfs_visitar(id1,visitados,orden,padre)
-	imprimir_camino(id1,id2,padre)
 
+MAX_CAM_CENT = 10
+MAX_PASOS_CENT = 130
+MIN_PASOS_CENT = 50
+CANT_VERTICES = 400
+
+"""
+Obtiene los usuarios mas centrales a través de sucesivos random walks.
+
+"""
+def centralidad( grafo, cant_centrales ):
+	caminos = MAX_CAM_CENT
+	max_pasos = MAX_PASOS_CENT
+	min_pasos = MIN_PASOS_CENT
+	lista_caminos = random_walk_lista_crear(caminos,max_pasos,min_pasos )
+	cant = CANT_VERTICES
+	aparecidos=random_walk_global( grafo, cant,caminos,lista_caminos )
+	mas_centrales = heapq.nlargest(int(cant_centrales),aparecidos.items(),key=itemgetter(1))
+	imprimir_clave_lista_tuplas(mas_centrales, False )
+    
+
+"""
+Calcula la cantidad de usuarios que están en cada una de
+las distancias posibles del usuario pasado por parámetro
+
+Pre: instancia de grafo fue creada
+
+Post: cantidad de usuarios y distancias impresas por pantalla
+"""
+
+def distancias(grafo,id_usuario): 
+    orden = bfs_visitar(grafo,id_usuario)
+    heap =[]
+    dist={}
+
+    for v in orden:
+        if orden[v] not in dist:
+            dist[orden[v]]=0
+        dist[orden[v]]+=1
+
+    for u in dist: 
+        heapq.heappush(heap,(u,dist[u]))
+        
+    long = len(dist)
+    heapq.heappop(heap) 
+    long-=1
+
+    while long>0:
+        clave,val=heapq.heappop(heap)
+        print(clave,val)
+        long-=1 
+	
 #comunidades----------------------------------------------------------------
 
 MAX_ITERACIONES = 2
